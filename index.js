@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const ytdl = require("@distube/ytdl-core");
+const ytdl = require("ytdl-core");
 const Youtube = require("youtube-search-api");
 const cors = require("cors");
 
