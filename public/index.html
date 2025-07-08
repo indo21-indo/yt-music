@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube MP3 Downloader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-3xl mx-auto py-10 px-4">
+    <h1 class="text-3xl font-bold text-center mb-6">🎵 ইউটিউব MP3 ডাউনলোডার</h1>
+    <input type="text" id="input" placeholder="🔍 ইউটিউব লিংক বা গান লিখুন" class="w-full p-3 border rounded mb-4">
+    <button onclick="handleSearch()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full">খুঁজুন</button>
+
+    <div id="results" class="mt-6 space-y-3"></div>
+    <div id="download" class="mt-6"></div>
+    <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow hidden"></div>
+  </div>
+
+  <script>
+    let searchResults = [];
+
+    function showToast(msg, error = false) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow ${
+        error ? 'bg-red-600' : 'bg-green-500'
+      } text-white`;
+      toast.classList.remove("hidden");
+      setTimeout(() => toast.classList.add("hidden"), 3000);
+    }
+
+    async function handleSearch() {
+      const val = document.getElementById("input").value.trim();
+      document.getElementById("results").innerHTML = '';
+      document.getElementById("download").innerHTML = '';
+
+      if (val.startsWith("http")) {
+        return downloadSong(val);
+      }
+
+      showToast("🔍 খোঁজা হচ্ছে...");
+      const res = await fetch("/api/search", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword: val })
+      });
+      const data = await res.json();
+      if (!data.success) return showToast("❌ খুঁজে পাওয়া যায়নি", true);
+
+      searchResults = data.videos;
+      const container = document.getElementById("results");
+      searchResults.forEach((v, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = `🎵 ${v.title} (${v.duration})`;
+        btn.className = "w-full text-left bg-white p-3 rounded border hover:bg-blue-100";
+        btn.onclick = () => downloadSong(`https://www.youtube.com/watch?v=${v.id}`);
+        container.appendChild(btn);
+      });
+    }
+
+    async function downloadSong(link) {
+      showToast("⬇️ ডাউনলোড হচ্ছে...");
+      const res = await fetch("/api/download", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ link })
+      });
+      const data = await res.json();
+      if (!data.success) return showToast("❌ ডাউনলোড ব্যর্থ", true);
+
+      document.getElementById("download").innerHTML = `
+        <div class="bg-white p-4 rounded shadow">
+          <h3 class="text-lg font-bold">${data.title}</h3>
+          <p>চ্যানেল: ${data.author}</p>
+          <p>সময়: ${Math.floor(data.duration / 60)} মিনিট</p>
+          <a href="${data.file}" download class="text-blue-600 underline">⬇️ ডাউনলোড করুন</a>
+        </div>`;
+      showToast("✅ রেডি!");
+    }
+  </script>
+</body>
+</html>
