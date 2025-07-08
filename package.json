@@ -1,13 +1,14 @@
 {
   "name": "yt-mp3-downloader",
   "version": "1.0.0",
-  "main": "server/index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server/index.js"
+    "start": "node index.js"
   },
   "dependencies": {
-  "ytdl-core": "^4.11.2",
-  "cors": "^2.8.5",
-  "express": "^4.18.2",
-  "youtube-search-api": "^1.1.5"
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "ytdl-core": "^4.11.2",
+    "youtube-search-api": "^1.1.5"
+  }
 }
