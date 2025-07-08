@@ -29,6 +29,7 @@ app.post("/api/search", async (req, res) => {
       }));
     res.json({ success: true, videos });
   } catch (e) {
+    console.error("Search error:", e);
     res.status(500).json({ success: false, error: "Search failed" });
   }
 });
@@ -56,6 +57,7 @@ app.post("/api/download", async (req, res) => {
 
     stream.pipe(fs.createWriteStream(filePath))
       .on("finish", () => {
+        console.log("Download finished:", filePath);
         res.json({
           success: true,
           title: info.videoDetails.title,
@@ -66,10 +68,11 @@ app.post("/api/download", async (req, res) => {
         });
       })
       .on("error", err => {
-        console.error(err);
+        console.error("Stream error:", err);
         res.status(500).json({ success: false, error: "Download failed" });
       });
   } catch (e) {
+    console.error("Download error:", e);
     res.status(500).json({ success: false, error: "Download failed" });
   }
 });
