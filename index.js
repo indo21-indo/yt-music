@@ -58,6 +58,14 @@ app.post("/api/download", async (req, res) => {
     res.status(500).json({ success: false, error: "Download failed" });
   }
 });
+//
+// Static ফাইল serve করার জন্য public ফোল্ডার
+app.use(express.static(path.join(__dirname, 'public')));
+
+// যদি ইউজার '/' (root) এ যাক, তাহলে index.html পাঠাবে
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
